@@ -7,23 +7,27 @@
 
 function pv_correct(perfusion_file, gm_file, wm_file, mask_file, kernel_size)
 
+    % Output file names:
+    file_name_perfusion_gm = strcat('perfusion_gm_k', num2str(kernel_size));
+    file_name_perfusion_wm = strcat('perfusion_wm_k', num2str(kernel_size));
+    
     % Load data files
+    [data,dims,scales] = ra(perfusion_file);
+    gm                 = ra(gm_file);
+    wm                 = ra(wm_file);
+    mask               = ra(mask_file);
 
-    % replace the following file read with load_nii library
-    %[data,dims,scales] = ra([dir perfusion_file]);
-    %gm = ra([dir gm_file]);
-    %wm = ra([dir wm_file]);
-    %mask = ra([dir mask_file]);
+    % UAT Moss
+    %cbf_file_handle  = load_nii(perfusion_file);
+    %gm_file_handle   = load_nii(gm_file);
+    %wm_file_handle   = load_nii(wm_file);
+    %mask_file_handle = load_nii(mask_file);
 
-    cbf_file_handle  = load_nii(perfusion_file);
-    gm_file_handle   = load_nii(gm_file);
-    wm_file_handle   = load_nii(wm_file);
-    mask_file_handle = load_nii(mask_file);
-
-    data = cbf_file_handle.img;
-    gm   = gm_file_handle.img;
-    wm   = wm_file_handle.img;
-    mask = mask_file_handle.img;
+    % UAT Moss
+    %data = cbf_file_handle.img;
+    %gm   = gm_file_handle.img;
+    %wm   = wm_file_handle.img;
+    %mask = mask_file_handle.img;
 
     % Concatinate along the time dimension
     pve = cat(4,gm,wm);
@@ -34,10 +38,12 @@ function pv_correct(perfusion_file, gm_file, wm_file, mask_file, kernel_size)
 
     % Check kernel size
     if (length(kernel_size) == 1)
-        nsel=kernel_size;nzsel=kernel_size;
+        nsel = kernel_size;nzsel=kernel_size;
+
     elseif (length(kernel_size) == 2)
-        nsel=kernel_size(1);
+        nsel = kernel_size(1);
         nzsel = kernel_size(2);
+
     else
         error('Size must be scalar or have two entries (xy dimension and z dimension)');
     end
@@ -46,6 +52,8 @@ function pv_correct(perfusion_file, gm_file, wm_file, mask_file, kernel_size)
     xsize = size(mask,1);
     ysize = size(mask,2);
     zsize = size(mask,3);
+
+    display('Performing partial volume correction...');
 
     count=1; % Used to monitor number of iterations
 
@@ -63,7 +71,7 @@ function pv_correct(perfusion_file, gm_file, wm_file, mask_file, kernel_size)
                     if (sum(sum(sum(submask))) > 5)
                         % Extract sub perfusion and PV map within the current kernel
                         subdata = vols2matrix(data(max(i - nsel, 1) : min(i + nsel, xsize), max(j - nsel, 1) : min(j + nsel, ysize), max(k - nzsel, 1) : min(k + nzsel, zsize), :), submask);
-                        subpve = vols2matrix(pve(max(i - nsel, 1) : min(i + nsel, xsize), max(j - nsel, 1) : min(j + nsel, ysize), max(k - nzsel, 1) : min(k + nzsel, zsize), :), submask);
+                        subpve  = vols2matrix(pve(max(i - nsel, 1) : min(i + nsel, xsize), max(j - nsel, 1) : min(j + nsel, ysize), max(k - nzsel, 1) : min(k + nzsel, zsize), :), submask);
                         
                         % Get pseudo inversion matrix
                         pveinv = pinv(subpve);
@@ -82,8 +90,6 @@ function pv_correct(perfusion_file, gm_file, wm_file, mask_file, kernel_size)
                         % Deal with cases where there is very little GM or WM
                         % Within the sample volume
                         % Then assign zero to GM and WM perfusion map
-                        %if (pveprop(1) < 0.01), GMdata(i,j,k,:) = 0;end
-                        %if (pveprop(2) < 0.01), WMdata(i,j,k,:) = 0;end
                         if (pveprop(1) < 0.01)
                             GMdata(i,j,k,:) = 0;
                         end
@@ -95,7 +101,7 @@ function pv_correct(perfusion_file, gm_file, wm_file, mask_file, kernel_size)
                 end
             end
 
-            count=count + 1;
+            count = count + 1;
             % Display iteration process every 100 times
             if (rem(count, 100) == 0)
                 disp(count);
@@ -105,14 +111,19 @@ function pv_correct(perfusion_file, gm_file, wm_file, mask_file, kernel_size)
     end
 
     % Save results
-    %save_avw(GMdata,[dir 'gm_' outstr],'f',scales);
-    %save_avw(GMdata,[dir 'wm_' outstr],'f',scales);
+    save_avw(GMdata, file_name_perfusion_gm, 'f', scales);
+    save_avw(GMdata, file_name_perfusion_wm, 'f', scales);
 
-    gm_file_handle.img = GMdata;
-    wm_file_handle.img = WMdata;
+    % UAT Moss
+    %gm_file_handle.img = GMdata;
+    %wm_file_handle.img = WMdata;
 
-    save_nii(gm_file_handle, strcat('perfusion_gm_k', num2str(kernel_size), '.nii.gz'));
-    save_nii(wm_file_handle, strcat('perfusion_wm_k', num2str(kernel_size), '.nii.gz'));
+    % UAT Moss
+    %save_nii(gm_file_handle, strcat('perfusion_gm_k', num2str(kernel_size), '.nii.gz'));
+    %save_nii(wm_file_handle, strcat('perfusion_wm_k', num2str(kernel_size), '.nii.gz'));
+
+    display(['Results saved in ' file_name_perfusion_gm ' and ' file_name_perfusion_wm]);
+    display('Finish');
 
 end
 
