@@ -13,9 +13,9 @@ function csf_correct(m0t_file, csf_file, gm_file, wm_file, mask_file, kernel_siz
 
 
     % Output file names:
-    file_name_m0t_csf = strcat('m0t_csf_k', num2str(kernel_size));
-    file_name_m0t_gm  = strcat('m0t_gm_k', num2str(kernel_size));
-    file_name_m0t_wm  = strcat('m0t_wm_k', num2str(kernel_size));
+    file_name_m0t_csf = strcat('M0t_csf_k', num2str(kernel_size));
+    file_name_m0t_gm  = strcat('M0t_gm_k', num2str(kernel_size));
+    file_name_m0t_wm  = strcat('M0t_wm_k', num2str(kernel_size));
     
     % Load data files
     [data,dims,scales] = ra(m0t_file);
