@@ -5,7 +5,7 @@
 % m0t_[tissue_type]_[kernel_size].nii.gz: corrected M0t image
 
 
-function csf_correct(m0t_file, csf_file, gm_file, wm_file, mask_file, kernel_size)
+function m0t_correct(m0t_file, csf_file, gm_file, wm_file, mask_file, kernel_size)
 
 
     % Output file names:
