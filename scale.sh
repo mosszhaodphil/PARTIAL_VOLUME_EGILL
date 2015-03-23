@@ -5,7 +5,7 @@
 file_name_perfusion_gm=$1
 file_name_M0t_gm=$2
 
-file_name_perfusion_scaled=perfusion_scaled.nii.gz
+file_name_perfusion_scaled=perfusion_gm_scaled.nii.gz
 
 echo "Scaling..."
 
