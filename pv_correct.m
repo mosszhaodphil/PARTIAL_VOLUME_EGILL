@@ -112,7 +112,7 @@ function pv_correct(perfusion_file, gm_file, wm_file, mask_file, kernel_size)
 
     % Save results
     save_avw(GMdata, file_name_perfusion_gm, 'f', scales);
-    save_avw(GMdata, file_name_perfusion_wm, 'f', scales);
+    save_avw(WMdata, file_name_perfusion_wm, 'f', scales);
 
     % UAT Moss
     %gm_file_handle.img = GMdata;
